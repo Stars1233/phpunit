@@ -12,6 +12,7 @@ namespace PHPUnit\Util;
 use function array_keys;
 use function array_merge;
 use function array_reverse;
+use function assert;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -19,6 +20,8 @@ use ReflectionException;
 use ReflectionMethod;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final readonly class Reflection
@@ -40,6 +43,9 @@ final readonly class Reflection
             $file = 'unknown';
             $line = 0;
         }
+
+        assert($file !== false && $file !== '');
+        assert($line !== false && $line >= 0);
 
         return [
             'file' => $file,

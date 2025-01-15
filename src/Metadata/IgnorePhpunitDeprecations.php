@@ -12,11 +12,13 @@ namespace PHPUnit\Metadata;
 /**
  * @immutable
  *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final readonly class IgnorePhpunitDeprecations extends Metadata
 {
-    public function isIgnorePhpunitDeprecations(): bool
+    public function isIgnorePhpunitDeprecations(): true
     {
         return true;
     }

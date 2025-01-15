@@ -9,6 +9,7 @@
  */
 namespace PHPUnit\TextUI\Configuration;
 
+use const DIRECTORY_SEPARATOR;
 use function realpath;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -38,7 +39,6 @@ final class SourceFilterTest extends TestCase
                     ),
                     FilterDirectoryCollection::fromArray([]),
                     FileCollection::fromArray([]),
-                    false,
                     false,
                     false,
                     false,
@@ -88,7 +88,6 @@ final class SourceFilterTest extends TestCase
                     false,
                     false,
                     false,
-                    false,
                     [
                         'functions' => [],
                         'methods'   => [],
@@ -125,7 +124,6 @@ final class SourceFilterTest extends TestCase
                     false,
                     false,
                     false,
-                    false,
                     [
                         'functions' => [],
                         'methods'   => [],
@@ -153,7 +151,6 @@ final class SourceFilterTest extends TestCase
                     FileCollection::fromArray([]),
                     FilterDirectoryCollection::fromArray([]),
                     FileCollection::fromArray([]),
-                    false,
                     false,
                     false,
                     false,
@@ -203,7 +200,6 @@ final class SourceFilterTest extends TestCase
                     false,
                     false,
                     false,
-                    false,
                     [
                         'functions' => [],
                         'methods'   => [],
@@ -239,7 +235,6 @@ final class SourceFilterTest extends TestCase
                         ],
                     ),
                     FileCollection::fromArray([]),
-                    false,
                     false,
                     false,
                     false,

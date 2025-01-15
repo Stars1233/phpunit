@@ -17,6 +17,8 @@ use PHPUnit\Event\TestSuite\TestSuite;
 use PHPUnit\TextUI\Configuration\Configuration;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 interface Emitter
@@ -86,6 +88,11 @@ interface Emitter
     /**
      * @param class-string $testClassName
      */
+    public function testBeforeTestMethodErrored(string $testClassName, ClassMethod $calledMethod, Throwable $throwable): void;
+
+    /**
+     * @psalm-param class-string $testClassName
+     */
     public function testBeforeTestMethodFinished(string $testClassName, ClassMethod ...$calledMethods): void;
 
     /**
@@ -95,6 +102,11 @@ interface Emitter
 
     /**
      * @param class-string $testClassName
+     */
+    public function testPreConditionErrored(string $testClassName, ClassMethod $calledMethod, Throwable $throwable): void;
+
+    /**
+     * @psalm-param class-string $testClassName
      */
     public function testPreConditionFinished(string $testClassName, ClassMethod ...$calledMethods): void;
 
@@ -116,33 +128,9 @@ interface Emitter
     public function testCreatedMockObjectForIntersectionOfInterfaces(array $interfaces): void;
 
     /**
-     * @param trait-string $traitName
-     */
-    public function testCreatedMockObjectForTrait(string $traitName): void;
-
-    /**
-     * @param class-string $className
-     */
-    public function testCreatedMockObjectForAbstractClass(string $className): void;
-
-    /**
-     * @param class-string $originalClassName
-     * @param class-string $mockClassName
-     * @param list<string> $methods
-     * @param list<mixed>  $options
-     */
-    public function testCreatedMockObjectFromWsdl(string $wsdlFile, string $originalClassName, string $mockClassName, array $methods, bool $callOriginalConstructor, array $options): void;
-
-    /**
      * @param class-string $className
      */
     public function testCreatedPartialMockObject(string $className, string ...$methodNames): void;
-
-    /**
-     * @param class-string $className
-     * @param list<mixed>  $constructorArguments
-     */
-    public function testCreatedTestProxy(string $className, array $constructorArguments): void;
 
     /**
      * @param class-string $className
@@ -167,9 +155,6 @@ interface Emitter
 
     public function testMarkedAsIncomplete(Code\Test $test, Throwable $throwable): void;
 
-    /**
-     * @param non-empty-string $message
-     */
     public function testSkipped(Code\Test $test, string $message): void;
 
     /**
@@ -188,8 +173,9 @@ interface Emitter
      * @param non-empty-string $message
      * @param non-empty-string $file
      * @param positive-int     $line
+     * @param non-empty-string $stackTrace
      */
-    public function testTriggeredDeprecation(Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline, bool $ignoredByTest, IssueTrigger $trigger): void;
+    public function testTriggeredDeprecation(Code\Test $test, string $message, string $file, int $line, bool $suppressed, bool $ignoredByBaseline, bool $ignoredByTest, IssueTrigger $trigger, string $stackTrace): void;
 
     /**
      * @param non-empty-string $message
@@ -251,6 +237,11 @@ interface Emitter
     /**
      * @param class-string $testClassName
      */
+    public function testPostConditionErrored(string $testClassName, ClassMethod $calledMethod, Throwable $throwable): void;
+
+    /**
+     * @psalm-param class-string $testClassName
+     */
     public function testPostConditionFinished(string $testClassName, ClassMethod ...$calledMethods): void;
 
     /**
@@ -260,6 +251,11 @@ interface Emitter
 
     /**
      * @param class-string $testClassName
+     */
+    public function testAfterTestMethodErrored(string $testClassName, ClassMethod $calledMethod, Throwable $throwable): void;
+
+    /**
+     * @psalm-param class-string $testClassName
      */
     public function testAfterTestMethodFinished(string $testClassName, ClassMethod ...$calledMethods): void;
 
@@ -271,9 +267,18 @@ interface Emitter
     /**
      * @param class-string $testClassName
      */
+    public function testAfterLastTestMethodErrored(string $testClassName, ClassMethod $calledMethod, Throwable $throwable): void;
+
+    /**
+     * @psalm-param class-string $testClassName
+     */
     public function testAfterLastTestMethodFinished(string $testClassName, ClassMethod ...$calledMethods): void;
 
     public function testSuiteFinished(TestSuite $testSuite): void;
+
+    public function testRunnerStartedChildProcess(): void;
+
+    public function testRunnerFinishedChildProcess(string $stdout, string $stderr): void;
 
     public function testRunnerTriggeredDeprecation(string $message): void;
 

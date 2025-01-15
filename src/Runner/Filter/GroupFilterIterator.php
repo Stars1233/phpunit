@@ -20,6 +20,8 @@ use RecursiveFilterIterator;
 use RecursiveIterator;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 abstract class GroupFilterIterator extends RecursiveFilterIterator
@@ -39,7 +41,7 @@ abstract class GroupFilterIterator extends RecursiveFilterIterator
 
         $groupTests = [];
 
-        foreach ($suite->groupDetails() as $group => $tests) {
+        foreach ($suite->groups() as $group => $tests) {
             if (in_array($group, $groups, true)) {
                 $groupTests = array_merge($groupTests, $tests);
 

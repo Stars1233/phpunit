@@ -17,12 +17,15 @@ require_once __DIR__ . '/../../../bootstrap.php';
 
 $generator = new \PHPUnit\Framework\MockObject\Generator\Generator;
 
-$mock = $generator->testDouble('Foo', false, false);
+$mock = $generator->testDouble(
+    type: 'Foo',
+    mockObject: false,
+);
 
 var_dump(iterator_to_array($mock->forTraversable()));
 var_dump(iterator_to_array($mock->forGenerator()));
 var_dump(iterator_to_array($mock->forIterable()));
---EXPECTF--
+--EXPECT--
 array(0) {
 }
 array(0) {

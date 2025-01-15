@@ -10,6 +10,7 @@
 namespace PHPUnit\TextUI\Configuration;
 
 use const DIRECTORY_SEPARATOR;
+use const PHP_OS_FAMILY;
 use function realpath;
 use Generator;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -40,7 +41,6 @@ final class SourceMapperTest extends TestCase
                 ),
                 FilterDirectoryCollection::fromArray([]),
                 FileCollection::fromArray([]),
-                false,
                 false,
                 false,
                 false,
@@ -91,7 +91,6 @@ final class SourceMapperTest extends TestCase
                 false,
                 false,
                 false,
-                false,
                 [
                     'functions' => [],
                     'methods'   => [],
@@ -120,7 +119,6 @@ final class SourceMapperTest extends TestCase
                         new File($fixtureDirectory . '/a/PrefixSuffix.php'),
                     ],
                 ),
-                false,
                 false,
                 false,
                 false,
@@ -179,7 +177,6 @@ final class SourceMapperTest extends TestCase
                 FileCollection::fromArray([]),
                 FilterDirectoryCollection::fromArray([]),
                 FileCollection::fromArray([]),
-                false,
                 false,
                 false,
                 false,
@@ -248,7 +245,6 @@ final class SourceMapperTest extends TestCase
                 false,
                 false,
                 false,
-                false,
                 [
                     'functions' => [],
                     'methods'   => [],
@@ -290,7 +286,6 @@ final class SourceMapperTest extends TestCase
                     ],
                 ),
                 FileCollection::fromArray([]),
-                false,
                 false,
                 false,
                 false,

@@ -12,15 +12,18 @@ namespace PHPUnit\Runner\Filter;
 use function assert;
 use FilterIterator;
 use Iterator;
+use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestSuite;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class Factory
 {
     /**
-     * @var list<array{className: class-string, argument: list<non-empty-string>|non-empty-string}>
+     * @var list<array{className: class-string<FilterIterator<int, Test, Iterator<int, Test>>>, argument: list<non-empty-string>|non-empty-string}>
      */
     private array $filters = [];
 
@@ -79,6 +82,11 @@ final class Factory
         ];
     }
 
+    /**
+     * @param Iterator<int, Test> $iterator
+     *
+     * @return FilterIterator<int, Test, Iterator<int, Test>>
+     */
     public function factory(Iterator $iterator, TestSuite $suite): FilterIterator
     {
         foreach ($this->filters as $filter) {

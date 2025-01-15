@@ -22,7 +22,7 @@ final readonly class RequiresOperatingSystem extends Metadata
     private string $operatingSystem;
 
     /**
-     * @param 0|1              $level
+     * @param int<0, 1>        $level
      * @param non-empty-string $operatingSystem
      */
     public function __construct(int $level, string $operatingSystem)
@@ -32,7 +32,7 @@ final readonly class RequiresOperatingSystem extends Metadata
         $this->operatingSystem = $operatingSystem;
     }
 
-    public function isRequiresOperatingSystem(): bool
+    public function isRequiresOperatingSystem(): true
     {
         return true;
     }

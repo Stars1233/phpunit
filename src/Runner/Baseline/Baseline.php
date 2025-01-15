@@ -10,11 +10,13 @@
 namespace PHPUnit\Runner\Baseline;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class Baseline
 {
-    public const VERSION = 1;
+    public const int VERSION = 1;
 
     /**
      * @var array<non-empty-string, array<positive-int, list<Issue>>>

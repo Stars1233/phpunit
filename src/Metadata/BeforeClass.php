@@ -16,8 +16,32 @@ namespace PHPUnit\Metadata;
  */
 final readonly class BeforeClass extends Metadata
 {
-    public function isBeforeClass(): bool
+    /**
+     * @var non-negative-int
+     */
+    private int $priority;
+
+    /**
+     * @param int<0, 1>        $level
+     * @param non-negative-int $priority
+     */
+    protected function __construct(int $level, int $priority)
+    {
+        parent::__construct($level);
+
+        $this->priority = $priority;
+    }
+
+    public function isBeforeClass(): true
     {
         return true;
+    }
+
+    /**
+     * @return non-negative-int
+     */
+    public function priority(): int
+    {
+        return $this->priority;
     }
 }

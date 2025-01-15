@@ -11,20 +11,11 @@ namespace PHPUnit\Metadata\Api;
 
 use function array_key_exists;
 use function assert;
-use function explode;
+use function get_debug_type;
 use function is_array;
 use function is_int;
-use function json_decode;
-use function json_last_error;
-use function json_last_error_msg;
-use function preg_match;
-use function preg_replace;
-use function rtrim;
+use function is_string;
 use function sprintf;
-use function str_replace;
-use function strlen;
-use function substr;
-use function trim;
 use PHPUnit\Event;
 use PHPUnit\Framework\InvalidDataProviderException;
 use PHPUnit\Metadata\DataProvider as DataProviderMetadata;
@@ -32,10 +23,11 @@ use PHPUnit\Metadata\MetadataCollection;
 use PHPUnit\Metadata\Parser\Registry as MetadataRegistry;
 use PHPUnit\Metadata\TestWith;
 use ReflectionClass;
-use ReflectionMethod;
 use Throwable;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final readonly class DataProvider
@@ -54,7 +46,7 @@ final readonly class DataProvider
         $testWith     = MetadataRegistry::parser()->forMethod($className, $methodName)->isTestWith();
 
         if ($dataProvider->isEmpty() && $testWith->isEmpty()) {
-            return $this->dataProvidedByTestWithAnnotation($className, $methodName);
+            return null;
         }
 
         if ($dataProvider->isNotEmpty()) {
@@ -73,8 +65,9 @@ final readonly class DataProvider
             if (!is_array($value)) {
                 throw new InvalidDataProviderException(
                     sprintf(
-                        'Data set %s is invalid',
+                        'Data set %s is invalid, expected array but got %s',
                         is_int($key) ? '#' . $key : '"' . $key . '"',
+                        get_debug_type($value),
                     ),
                 );
             }
@@ -162,20 +155,31 @@ final readonly class DataProvider
             foreach ($data as $key => $value) {
                 if (is_int($key)) {
                     $result[] = $value;
-                } elseif (array_key_exists($key, $result)) {
-                    Event\Facade::emitter()->dataProviderMethodFinished(
-                        $testMethod,
-                        ...$methodsCalled,
-                    );
+                } elseif (is_string($key)) {
+                    if (array_key_exists($key, $result)) {
+                        Event\Facade::emitter()->dataProviderMethodFinished(
+                            $testMethod,
+                            ...$methodsCalled,
+                        );
 
+                        throw new InvalidDataProviderException(
+                            sprintf(
+                                'The key "%s" has already been defined by a previous data provider',
+                                $key,
+                            ),
+                        );
+                    }
+
+                    $result[$key] = $value;
+                } else {
+                    // @codeCoverageIgnoreStart
                     throw new InvalidDataProviderException(
                         sprintf(
-                            'The key "%s" has already been defined by a previous data provider',
-                            $key,
+                            'The key must be an integer or a string, %s given',
+                            get_debug_type($key),
                         ),
                     );
-                } else {
-                    $result[$key] = $value;
+                    // @codeCoverageIgnoreEnd
                 }
             }
         }
@@ -217,60 +221,5 @@ final readonly class DataProvider
         }
 
         return $result;
-    }
-
-    /**
-     * @param class-string $className
-     *
-     * @throws InvalidDataProviderException
-     *
-     * @return ?array<array<mixed>>
-     */
-    private function dataProvidedByTestWithAnnotation(string $className, string $methodName): ?array
-    {
-        $docComment = (new ReflectionMethod($className, $methodName))->getDocComment();
-
-        if ($docComment === false) {
-            return null;
-        }
-
-        $docComment = str_replace("\r\n", "\n", $docComment);
-        $docComment = preg_replace('/\n\s*\*\s?/', "\n", $docComment);
-        $docComment = substr($docComment, 0, -1);
-        $docComment = rtrim($docComment, "\n");
-
-        if (!preg_match('/@testWith\s+/', $docComment, $matches, PREG_OFFSET_CAPTURE)) {
-            return null;
-        }
-
-        $offset            = strlen($matches[0][0]) + (int) $matches[0][1];
-        $annotationContent = substr($docComment, $offset);
-        $data              = [];
-
-        foreach (explode("\n", $annotationContent) as $candidateRow) {
-            $candidateRow = trim($candidateRow);
-
-            if ($candidateRow === '' || $candidateRow[0] !== '[') {
-                break;
-            }
-
-            $dataSet = json_decode($candidateRow, true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new InvalidDataProviderException(
-                    'The data set for the @testWith annotation cannot be parsed: ' . json_last_error_msg(),
-                );
-            }
-
-            $data[] = $dataSet;
-        }
-
-        if (!$data) {
-            throw new InvalidDataProviderException(
-                'The data set for the @testWith annotation cannot be parsed.',
-            );
-        }
-
-        return $data;
     }
 }
