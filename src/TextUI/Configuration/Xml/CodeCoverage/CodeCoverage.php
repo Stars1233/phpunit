@@ -19,6 +19,8 @@ use PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Xml;
 use PHPUnit\TextUI\XmlConfiguration\Exception;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
  * @immutable
@@ -26,7 +28,6 @@ use PHPUnit\TextUI\XmlConfiguration\Exception;
 final readonly class CodeCoverage
 {
     private bool $pathCoverage;
-    private bool $includeUncoveredFiles;
     private bool $ignoreDeprecatedCodeUnits;
     private bool $disableCodeCoverageIgnore;
     private ?Clover $clover;
@@ -37,10 +38,9 @@ final readonly class CodeCoverage
     private ?Text $text;
     private ?Xml $xml;
 
-    public function __construct(bool $pathCoverage, bool $includeUncoveredFiles, bool $ignoreDeprecatedCodeUnits, bool $disableCodeCoverageIgnore, ?Clover $clover, ?Cobertura $cobertura, ?Crap4j $crap4j, ?Html $html, ?Php $php, ?Text $text, ?Xml $xml)
+    public function __construct(bool $pathCoverage, bool $ignoreDeprecatedCodeUnits, bool $disableCodeCoverageIgnore, ?Clover $clover, ?Cobertura $cobertura, ?Crap4j $crap4j, ?Html $html, ?Php $php, ?Text $text, ?Xml $xml)
     {
         $this->pathCoverage              = $pathCoverage;
-        $this->includeUncoveredFiles     = $includeUncoveredFiles;
         $this->ignoreDeprecatedCodeUnits = $ignoreDeprecatedCodeUnits;
         $this->disableCodeCoverageIgnore = $disableCodeCoverageIgnore;
         $this->clover                    = $clover;
@@ -55,11 +55,6 @@ final readonly class CodeCoverage
     public function pathCoverage(): bool
     {
         return $this->pathCoverage;
-    }
-
-    public function includeUncoveredFiles(): bool
-    {
-        return $this->includeUncoveredFiles;
     }
 
     public function ignoreDeprecatedCodeUnits(): bool

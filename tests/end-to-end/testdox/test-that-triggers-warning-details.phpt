@@ -25,13 +25,8 @@ Warning (PHPUnit\TestFixture\TestDox\Warning)
 
 1 test triggered 1 warning:
 
-1) %sWarningTest.php:19
+1) %sWarningTest.php:20
 warning
-
-Triggered by:
-
-* PHPUnit\TestFixture\TestDox\WarningTest::testWarning
-  %sWarningTest.php:17
 
 OK, but there were issues!
 Tests: 1, Assertions: 1, Warnings: 1.

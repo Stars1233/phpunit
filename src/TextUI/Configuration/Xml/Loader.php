@@ -76,6 +76,8 @@ use SebastianBergmann\CodeCoverage\Report\Html\Colors;
 use SebastianBergmann\CodeCoverage\Report\Thresholds;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final readonly class Loader
@@ -214,8 +216,12 @@ final readonly class Loader
                 $parameters[$parameter->getAttribute('name')] = $parameter->getAttribute('value');
             }
 
+            $className = $bootstrap->getAttribute('class');
+
+            assert($className !== '');
+
             $extensionBootstrappers[] = new ExtensionBootstrap(
-                $bootstrap->getAttribute('class'),
+                $className,
                 $parameters,
             );
         }
@@ -258,7 +264,6 @@ final readonly class Loader
     private function source(string $filename, DOMXPath $xpath): Source
     {
         $baseline                           = null;
-        $restrictDeprecations               = false;
         $restrictNotices                    = false;
         $restrictWarnings                   = false;
         $ignoreSuppressionOfDeprecations    = false;
@@ -281,7 +286,6 @@ final readonly class Loader
                 $baseline = $this->toAbsolutePath($filename, $baseline);
             }
 
-            $restrictDeprecations               = $this->getBooleanAttribute($element, 'restrictDeprecations', false);
             $restrictNotices                    = $this->getBooleanAttribute($element, 'restrictNotices', false);
             $restrictWarnings                   = $this->getBooleanAttribute($element, 'restrictWarnings', false);
             $ignoreSuppressionOfDeprecations    = $this->getBooleanAttribute($element, 'ignoreSuppressionOfDeprecations', false);
@@ -328,7 +332,6 @@ final readonly class Loader
             $this->readFilterFiles($filename, $xpath, 'source/include/file'),
             $this->readFilterDirectories($filename, $xpath, 'source/exclude/directory'),
             $this->readFilterFiles($filename, $xpath, 'source/exclude/file'),
-            $restrictDeprecations,
             $restrictNotices,
             $restrictWarnings,
             $ignoreSuppressionOfDeprecations,
@@ -348,7 +351,6 @@ final readonly class Loader
     private function codeCoverage(string $filename, DOMXPath $xpath): CodeCoverage
     {
         $pathCoverage              = false;
-        $includeUncoveredFiles     = true;
         $ignoreDeprecatedCodeUnits = false;
         $disableCodeCoverageIgnore = false;
 
@@ -359,12 +361,6 @@ final readonly class Loader
                 $element,
                 'pathCoverage',
                 false,
-            );
-
-            $includeUncoveredFiles = $this->getBooleanAttribute(
-                $element,
-                'includeUncoveredFiles',
-                true,
             );
 
             $ignoreDeprecatedCodeUnits = $this->getBooleanAttribute(
@@ -494,7 +490,6 @@ final readonly class Loader
 
         return new CodeCoverage(
             $pathCoverage,
-            $includeUncoveredFiles,
             $ignoreDeprecatedCodeUnits,
             $disableCodeCoverageIgnore,
             $clover,
@@ -858,7 +853,7 @@ final readonly class Loader
             $beStrictAboutCoverageMetadata = $this->getBooleanAttribute($document->documentElement, 'beStrictAboutCoverageMetadata', false);
         }
 
-        $shortenArraysForExportThreshold = $this->getIntegerAttribute($document->documentElement, 'shortenArraysForExportThreshold', 0);
+        $shortenArraysForExportThreshold = $this->getIntegerAttribute($document->documentElement, 'shortenArraysForExportThreshold', 10);
 
         if ($shortenArraysForExportThreshold < 0) {
             $shortenArraysForExportThreshold = 0;
@@ -873,6 +868,7 @@ final readonly class Loader
             $this->getBooleanAttribute($document->documentElement, 'displayDetailsOnIncompleteTests', false),
             $this->getBooleanAttribute($document->documentElement, 'displayDetailsOnSkippedTests', false),
             $this->getBooleanAttribute($document->documentElement, 'displayDetailsOnTestsThatTriggerDeprecations', false),
+            $this->getBooleanAttribute($document->documentElement, 'displayDetailsOnPhpunitDeprecations', false),
             $this->getBooleanAttribute($document->documentElement, 'displayDetailsOnTestsThatTriggerErrors', false),
             $this->getBooleanAttribute($document->documentElement, 'displayDetailsOnTestsThatTriggerNotices', false),
             $this->getBooleanAttribute($document->documentElement, 'displayDetailsOnTestsThatTriggerWarnings', false),
@@ -881,6 +877,7 @@ final readonly class Loader
             $bootstrap,
             $this->getBooleanAttribute($document->documentElement, 'processIsolation', false),
             $this->getBooleanAttribute($document->documentElement, 'failOnDeprecation', false),
+            $this->getBooleanAttribute($document->documentElement, 'failOnPhpunitDeprecation', false),
             $this->getBooleanAttribute($document->documentElement, 'failOnEmptyTestSuite', false),
             $this->getBooleanAttribute($document->documentElement, 'failOnIncomplete', false),
             $this->getBooleanAttribute($document->documentElement, 'failOnNotice', false),

@@ -9,25 +9,19 @@
  */
 namespace PHPUnit\Framework\MockObject;
 
-use function assert;
-
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class TestDoubleState
 {
-    /**
-     * @var array<non-empty-string, true>
-     */
-    private static array $deprecationEmittedForTest = [];
-
     /**
      * @var list<ConfigurableMethod>
      */
     private readonly array $configurableMethods;
     private readonly bool $generateReturnValues;
     private ?InvocationHandler $invocationHandler = null;
-    private ?object $proxyTarget                  = null;
 
     /**
      * @param list<ConfigurableMethod> $configurableMethods
@@ -66,25 +60,16 @@ final class TestDoubleState
         $this->invocationHandler = null;
     }
 
-    public function setProxyTarget(object $proxyTarget): void
+    /**
+     * @return list<ConfigurableMethod>
+     */
+    public function configurableMethods(): array
     {
-        $this->proxyTarget = $proxyTarget;
+        return $this->configurableMethods;
     }
 
-    public function proxyTarget(): object
+    public function generateReturnValues(): bool
     {
-        assert($this->proxyTarget !== null);
-
-        return $this->proxyTarget;
-    }
-
-    public function deprecationWasEmittedFor(string $testId): void
-    {
-        self::$deprecationEmittedForTest[$testId] = true;
-    }
-
-    public function wasDeprecationAlreadyEmittedFor(string $testId): bool
-    {
-        return isset(self::$deprecationEmittedForTest[$testId]);
+        return $this->generateReturnValues;
     }
 }

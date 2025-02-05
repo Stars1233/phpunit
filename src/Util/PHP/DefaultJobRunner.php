@@ -27,9 +27,14 @@ use function sys_get_temp_dir;
 use function tempnam;
 use function trim;
 use function unlink;
+use function xdebug_is_debugger_active;
+use PHPUnit\Event\Facade;
+use PHPUnit\Runner\CodeCoverage;
 use SebastianBergmann\Environment\Runtime;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final readonly class DefaultJobRunner implements JobRunner
@@ -92,7 +97,6 @@ final readonly class DefaultJobRunner implements JobRunner
             }
 
             unset($key, $value);
-
         }
 
         $pipeSpec = [
@@ -112,6 +116,8 @@ final readonly class DefaultJobRunner implements JobRunner
             null,
             $environmentVariables,
         );
+
+        Facade::emitter()->testRunnerStartedChildProcess();
 
         if (!is_resource($process)) {
             // @codeCoverageIgnoreStart
@@ -145,6 +151,9 @@ final readonly class DefaultJobRunner implements JobRunner
             unlink($temporaryFile);
         }
 
+        assert($stdout !== false);
+        assert($stderr !== false);
+
         return new Result($stdout, $stderr);
     }
 
@@ -158,19 +167,35 @@ final readonly class DefaultJobRunner implements JobRunner
         $phpSettings = $job->phpSettings();
 
         if ($runtime->hasPCOV()) {
+            $pcovSettings = ini_get_all('pcov');
+
+            assert($pcovSettings !== false);
+
             $phpSettings = array_merge(
                 $phpSettings,
                 $runtime->getCurrentSettings(
-                    array_keys(ini_get_all('pcov')),
+                    array_keys($pcovSettings),
                 ),
             );
         } elseif ($runtime->hasXdebug()) {
+            $xdebugSettings = ini_get_all('xdebug');
+
+            assert($xdebugSettings !== false);
+
             $phpSettings = array_merge(
                 $phpSettings,
                 $runtime->getCurrentSettings(
-                    array_keys(ini_get_all('xdebug')),
+                    array_keys($xdebugSettings),
                 ),
             );
+
+            // disable xdebug if not required to reduce xdebug performance overhead in subprocesses
+            if (
+                !CodeCoverage::instance()->isActive() &&
+                xdebug_is_debugger_active() === false
+            ) {
+                $phpSettings['xdebug.mode'] = 'xdebug.mode=off';
+            }
         }
 
         $command = array_merge($command, $this->settingsToParameters($phpSettings));

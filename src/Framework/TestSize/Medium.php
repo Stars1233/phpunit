@@ -10,13 +10,15 @@
 namespace PHPUnit\Framework\TestSize;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
  * @immutable
  */
 final readonly class Medium extends Known
 {
-    public function isMedium(): bool
+    public function isMedium(): true
     {
         return true;
     }

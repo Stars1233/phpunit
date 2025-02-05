@@ -32,7 +32,7 @@ final readonly class UsesTrait extends Metadata
         $this->traitName = $traitName;
     }
 
-    public function isUsesTrait(): bool
+    public function isUsesTrait(): true
     {
         return true;
     }
@@ -41,16 +41,6 @@ final readonly class UsesTrait extends Metadata
      * @return trait-string
      */
     public function traitName(): string
-    {
-        return $this->traitName;
-    }
-
-    /**
-     * @return trait-string
-     *
-     * @internal This method is not covered by the backward compatibility promise for PHPUnit
-     */
-    public function asStringForCodeUnitMapper(): string
     {
         return $this->traitName;
     }

@@ -25,6 +25,8 @@ use PHPUnit\TextUI\XmlConfiguration\CodeCoverage\CodeCoverage;
 use PHPUnit\TextUI\XmlConfiguration\Logging\Logging;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  *
  * @immutable
@@ -51,7 +53,6 @@ final readonly class DefaultConfiguration extends Configuration
                 false,
                 false,
                 false,
-                false,
                 [
                     'functions' => [],
                     'methods'   => [],
@@ -62,7 +63,6 @@ final readonly class DefaultConfiguration extends Configuration
             ),
             new CodeCoverage(
                 false,
-                true,
                 false,
                 false,
                 null,
@@ -110,7 +110,9 @@ final readonly class DefaultConfiguration extends Configuration
                 false,
                 false,
                 false,
+                false,
                 null,
+                false,
                 false,
                 false,
                 false,
@@ -148,7 +150,7 @@ final readonly class DefaultConfiguration extends Configuration
                 false,
                 false,
                 100,
-                0,
+                10,
             ),
             TestSuiteCollection::fromArray([]),
         );

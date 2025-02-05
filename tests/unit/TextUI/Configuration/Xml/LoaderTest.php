@@ -18,7 +18,7 @@ use function realpath;
 use function sys_get_temp_dir;
 use function uniqid;
 use function unlink;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNamespace;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Medium;
 use PHPUnit\Framework\TestCase;
@@ -27,7 +27,7 @@ use PHPUnit\TextUI\Configuration\Configuration;
 use SebastianBergmann\CodeCoverage\Report\Html\Colors;
 use SebastianBergmann\CodeCoverage\Report\Thresholds;
 
-#[CoversClass(Loader::class)]
+#[CoversNamespace('PHPUnit\TextUI\XmlConfiguration')]
 #[Medium]
 final class LoaderTest extends TestCase
 {
@@ -186,7 +186,6 @@ final class LoaderTest extends TestCase
         $codeCoverage = $this->configuration('configuration_codecoverage.xml')->codeCoverage();
 
         $this->assertTrue($codeCoverage->pathCoverage());
-        $this->assertTrue($codeCoverage->includeUncoveredFiles());
         $this->assertTrue($codeCoverage->ignoreDeprecatedCodeUnits());
         $this->assertTrue($codeCoverage->disableCodeCoverageIgnore());
 

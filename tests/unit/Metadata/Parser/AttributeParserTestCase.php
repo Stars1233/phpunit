@@ -14,15 +14,18 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Metadata\DependsOnClass;
 use PHPUnit\Metadata\DependsOnMethod;
+use PHPUnit\Metadata\RequiresEnvironmentVariable;
 use PHPUnit\Metadata\RequiresPhp;
 use PHPUnit\Metadata\RequiresPhpExtension;
 use PHPUnit\Metadata\RequiresPhpunit;
+use PHPUnit\Metadata\RequiresPhpunitExtension;
 use PHPUnit\Metadata\RequiresSetting;
 use PHPUnit\Metadata\Version\ComparisonRequirement;
 use PHPUnit\Metadata\Version\ConstraintRequirement;
 use PHPUnit\TestFixture\Metadata\Attribute\AnotherTest;
 use PHPUnit\TestFixture\Metadata\Attribute\BackupGlobalsTest;
 use PHPUnit\TestFixture\Metadata\Attribute\BackupStaticPropertiesTest;
+use PHPUnit\TestFixture\Metadata\Attribute\CoversNothingTest;
 use PHPUnit\TestFixture\Metadata\Attribute\CoversTest;
 use PHPUnit\TestFixture\Metadata\Attribute\DependencyTest;
 use PHPUnit\TestFixture\Metadata\Attribute\DisableReturnValueGenerationForTestDoublesTest;
@@ -37,14 +40,17 @@ use PHPUnit\TestFixture\Metadata\Attribute\IgnorePhpunitDeprecationsMethodTest;
 use PHPUnit\TestFixture\Metadata\Attribute\LargeTest;
 use PHPUnit\TestFixture\Metadata\Attribute\MediumTest;
 use PHPUnit\TestFixture\Metadata\Attribute\NonPhpunitAttributeTest;
+use PHPUnit\TestFixture\Metadata\Attribute\PhpunitAttributeThatDoesNotExistTest;
 use PHPUnit\TestFixture\Metadata\Attribute\PreserveGlobalStateTest;
 use PHPUnit\TestFixture\Metadata\Attribute\ProcessIsolationTest;
+use PHPUnit\TestFixture\Metadata\Attribute\RequiresEnvironmentVariableTest;
 use PHPUnit\TestFixture\Metadata\Attribute\RequiresFunctionTest;
 use PHPUnit\TestFixture\Metadata\Attribute\RequiresMethodTest;
 use PHPUnit\TestFixture\Metadata\Attribute\RequiresOperatingSystemFamilyTest;
 use PHPUnit\TestFixture\Metadata\Attribute\RequiresOperatingSystemTest;
 use PHPUnit\TestFixture\Metadata\Attribute\RequiresPhpExtensionTest;
 use PHPUnit\TestFixture\Metadata\Attribute\RequiresPhpTest;
+use PHPUnit\TestFixture\Metadata\Attribute\RequiresPhpunitExtensionTest;
 use PHPUnit\TestFixture\Metadata\Attribute\RequiresPhpunitTest;
 use PHPUnit\TestFixture\Metadata\Attribute\RequiresSettingTest;
 use PHPUnit\TestFixture\Metadata\Attribute\SmallTest;
@@ -75,6 +81,16 @@ abstract class AttributeParserTestCase extends TestCase
         $this->assertTrue($metadata->asArray()[0]->enabled());
     }
 
+    #[TestDox('Parses #[CoversNamespace] attribute on class')]
+    public function test_parses_CoversNamespace_attribute_on_class(): void
+    {
+        $metadata = $this->parser()->forClass(CoversTest::class)->isCoversNamespace();
+
+        $this->assertCount(1, $metadata);
+        $this->assertTrue($metadata->asArray()[0]->isCoversNamespace());
+        $this->assertSame('PHPUnit\TestFixture\Metadata\Attribute', $metadata->asArray()[0]->namespace());
+    }
+
     #[TestDox('Parses #[CoversClass] attribute on class')]
     public function test_parses_CoversClass_attribute_on_class(): void
     {
@@ -83,6 +99,26 @@ abstract class AttributeParserTestCase extends TestCase
         $this->assertCount(1, $metadata);
         $this->assertTrue($metadata->asArray()[0]->isCoversClass());
         $this->assertSame(Example::class, $metadata->asArray()[0]->className());
+    }
+
+    #[TestDox('Parses #[CoversClassesThatExtendClass] attribute on class')]
+    public function test_parses_CoversClassesThatExtendClass_attribute_on_class(): void
+    {
+        $metadata = $this->parser()->forClass(CoversTest::class)->isCoversClassesThatExtendClass();
+
+        $this->assertCount(1, $metadata);
+        $this->assertTrue($metadata->asArray()[0]->isCoversClassesThatExtendClass());
+        $this->assertSame(Example::class, $metadata->asArray()[0]->className());
+    }
+
+    #[TestDox('Parses #[CoversClassesThatImplementInterface] attribute on class')]
+    public function test_parses_CoversClassesThatImplementInterface_attribute_on_class(): void
+    {
+        $metadata = $this->parser()->forClass(CoversTest::class)->isCoversClassesThatImplementInterface();
+
+        $this->assertCount(1, $metadata);
+        $this->assertTrue($metadata->asArray()[0]->isCoversClassesThatImplementInterface());
+        $this->assertSame(Example::class, $metadata->asArray()[0]->interfaceName());
     }
 
     #[TestDox('Parses #[CoversTrait] attribute on class')]
@@ -119,7 +155,7 @@ abstract class AttributeParserTestCase extends TestCase
     #[TestDox('Parses #[CoversNothing] attribute on class')]
     public function test_parses_CoversNothing_attribute_on_class(): void
     {
-        $metadata = $this->parser()->forClass(CoversTest::class)->isCoversNothing();
+        $metadata = $this->parser()->forClass(CoversNothingTest::class)->isCoversNothing();
 
         $this->assertCount(1, $metadata);
         $this->assertTrue($metadata->asArray()[0]->isCoversNothing());
@@ -315,6 +351,39 @@ abstract class AttributeParserTestCase extends TestCase
         $this->assertSame('>= 10.0.0', $versionRequirement->asString());
     }
 
+    #[TestDox('Parses #[RequiresPhpunitExtension] attribute on class')]
+    public function test_parses_RequiresPhpunitExtension_attribute_on_class(): void
+    {
+        $metadata = $this->parser()->forClass(RequiresPhpunitExtensionTest::class)->isRequiresPhpunitExtension();
+
+        $this->assertCount(1, $metadata);
+
+        $requirement = $metadata->asArray()[0];
+
+        $this->assertTrue($requirement->isRequiresPhpunitExtension());
+
+        assert($requirement instanceof RequiresPhpunitExtension);
+
+        $this->assertSame('PHPUnit\TestFixture\Metadata\Attribute\SomeExtension', $requirement->extensionClass());
+    }
+
+    #[TestDox('Parses #[RequiresEnvironmentVariable] attribute on class')]
+    public function test_parses_RequiresEnvironmentVariable_attribute_on_class(): void
+    {
+        $metadata = $this->parser()->forClass(RequiresEnvironmentVariableTest::class)->isRequiresEnvironmentVariable();
+
+        $this->assertCount(1, $metadata);
+
+        $requirement = $metadata->asArray()[0];
+
+        $this->assertTrue($requirement->isRequiresEnvironmentVariable());
+
+        assert($requirement instanceof RequiresEnvironmentVariable);
+
+        $this->assertSame('foo', $requirement->environmentVariableName());
+        $this->assertSame('bar', $requirement->value());
+    }
+
     #[TestDox('Parses #[RequiresSetting] attribute on class')]
     public function test_parses_RequiresSetting_attribute_on_class(): void
     {
@@ -380,6 +449,16 @@ abstract class AttributeParserTestCase extends TestCase
         $this->assertSame('ticket', $metadata->asArray()[1]->groupName());
     }
 
+    #[TestDox('Parses #[UsesNamespace] attribute on class')]
+    public function test_parses_UsesNamespace_attribute_on_class(): void
+    {
+        $metadata = $this->parser()->forClass(UsesTest::class)->isUsesNamespace();
+
+        $this->assertCount(1, $metadata);
+        $this->assertTrue($metadata->asArray()[0]->isUsesNamespace());
+        $this->assertSame('PHPUnit\TestFixture\Metadata\Attribute', $metadata->asArray()[0]->namespace());
+    }
+
     #[TestDox('Parses #[UsesClass] attribute on class')]
     public function test_parses_UsesClass_attribute_on_class(): void
     {
@@ -388,6 +467,26 @@ abstract class AttributeParserTestCase extends TestCase
         $this->assertCount(1, $metadata);
         $this->assertTrue($metadata->asArray()[0]->isUsesClass());
         $this->assertSame(Example::class, $metadata->asArray()[0]->className());
+    }
+
+    #[TestDox('Parses #[UsesClassesThatExtendClass] attribute on class')]
+    public function test_parses_UsesClassesThatExtendClass_attribute_on_class(): void
+    {
+        $metadata = $this->parser()->forClass(UsesTest::class)->isUsesClassesThatExtendClass();
+
+        $this->assertCount(1, $metadata);
+        $this->assertTrue($metadata->asArray()[0]->isUsesClassesThatExtendClass());
+        $this->assertSame(Example::class, $metadata->asArray()[0]->className());
+    }
+
+    #[TestDox('Parses #[UsesClassesThatImplementInterface] attribute on class')]
+    public function test_parses_UsesClassesThatImplementInterface_attribute_on_class(): void
+    {
+        $metadata = $this->parser()->forClass(UsesTest::class)->isUsesClassesThatImplementInterface();
+
+        $this->assertCount(1, $metadata);
+        $this->assertTrue($metadata->asArray()[0]->isUsesClassesThatImplementInterface());
+        $this->assertSame(Example::class, $metadata->asArray()[0]->interfaceName());
     }
 
     #[TestDox('Parses #[UsesTrait] attribute on class')]
@@ -480,7 +579,7 @@ abstract class AttributeParserTestCase extends TestCase
     #[TestDox('Parses #[CoversNothing] attribute on method')]
     public function test_parses_CoversNothing_attribute_on_method(): void
     {
-        $metadata = $this->parser()->forMethod(CoversTest::class, 'testOne')->isCoversNothing();
+        $metadata = $this->parser()->forMethod(CoversNothingTest::class, 'testOne')->isCoversNothing();
 
         $this->assertCount(1, $metadata);
         $this->assertTrue($metadata->asArray()[0]->isCoversNothing());
@@ -867,6 +966,44 @@ abstract class AttributeParserTestCase extends TestCase
         $this->assertSame('^10.0', $versionRequirement->asString());
     }
 
+    #[TestDox('Parses #[RequiresPhpunitExtension] attribute on method')]
+    public function test_parses_RequiresPhpunitExtension_attribute_on_method(): void
+    {
+        $metadata = $this->parser()->forMethod(RequiresPhpunitExtensionTest::class, 'testOne')->isRequiresPhpunitExtension();
+
+        $this->assertCount(2, $metadata);
+
+        $requirement = $metadata->asArray()[0];
+        $this->assertTrue($requirement->isRequiresPhpunitExtension());
+        assert($requirement instanceof RequiresPhpunitExtension);
+        $this->assertSame('PHPUnit\TestFixture\Metadata\Attribute\SomeExtension', $requirement->extensionClass());
+
+        $requirement = $metadata->asArray()[1];
+        $this->assertTrue($requirement->isRequiresPhpunitExtension());
+        assert($requirement instanceof RequiresPhpunitExtension);
+        $this->assertSame('PHPUnit\TestFixture\Metadata\Attribute\SomeOtherExtension', $requirement->extensionClass());
+    }
+
+    #[TestDox('Parses #[RequiresEnvironmentVariable] attribute on method')]
+    public function test_parses_RequiresEnvironmentVariable_attribute_on_method(): void
+    {
+        $metadata = $this->parser()->forMethod(RequiresEnvironmentVariableTest::class, 'testOne')->isRequiresEnvironmentVariable();
+
+        $this->assertCount(2, $metadata);
+
+        $requirement = $metadata->asArray()[0];
+        $this->assertTrue($requirement->isRequiresEnvironmentVariable());
+        assert($requirement instanceof RequiresEnvironmentVariable);
+        $this->assertSame('foo', $requirement->environmentVariableName());
+        $this->assertNull($requirement->value());
+
+        $requirement = $metadata->asArray()[1];
+        $this->assertTrue($requirement->isRequiresEnvironmentVariable());
+        assert($requirement instanceof RequiresEnvironmentVariable);
+        $this->assertSame('bar', $requirement->environmentVariableName());
+        $this->assertSame('baz', $requirement->value());
+    }
+
     #[TestDox('Parses #[RequiresSetting] attribute on method')]
     public function test_parses_RequiresSetting_attribute_on_method(): void
     {
@@ -985,12 +1122,18 @@ abstract class AttributeParserTestCase extends TestCase
 
         $this->assertCount(1, $metadata->isCoversClass());
         $this->assertCount(1, $metadata->isCoversFunction());
-        $this->assertCount(2, $metadata->isCoversNothing());
     }
 
     public function test_ignores_attributes_not_owned_by_PHPUnit(): void
     {
         $metadata = $this->parser()->forClassAndMethod(NonPhpunitAttributeTest::class, 'testOne');
+
+        $this->assertTrue($metadata->isEmpty());
+    }
+
+    public function test_ignores_attributes_in_PHPUnit_namespace_that_do_not_exist(): void
+    {
+        $metadata = $this->parser()->forClassAndMethod(PhpunitAttributeThatDoesNotExistTest::class, 'testOne');
 
         $this->assertTrue($metadata->isEmpty());
     }
