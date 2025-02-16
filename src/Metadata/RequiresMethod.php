@@ -27,7 +27,7 @@ final readonly class RequiresMethod extends Metadata
     private string $methodName;
 
     /**
-     * @param 0|1              $level
+     * @param int<0, 1>        $level
      * @param class-string     $className
      * @param non-empty-string $methodName
      */
@@ -39,7 +39,7 @@ final readonly class RequiresMethod extends Metadata
         $this->methodName = $methodName;
     }
 
-    public function isRequiresMethod(): bool
+    public function isRequiresMethod(): true
     {
         return true;
     }

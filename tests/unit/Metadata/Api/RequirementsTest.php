@@ -14,6 +14,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\TestFixture\RequirementsEnvironmentVariableTest;
 
 #[CoversClass(Requirements::class)]
 #[Small]
@@ -123,7 +124,16 @@ final class RequirementsTest extends TestCase
                 'PHP ^1.0 is required.',
                 'PHPUnit ^2.0 is required.',
             ]],
+            ['testPHPUnitExtensionRequired', [
+                'PHPUnit extension "PHPUnit\TestFixture\SomeExtension" is required.',
+                'PHPUnit extension "PHPUnit\TestFixture\SomeOtherExtension" is required.',
+            ]],
         ];
+    }
+
+    protected function tearDown(): void
+    {
+        unset($_ENV['FOO'], $_ENV['BAR']);
     }
 
     #[DataProvider('missingRequirementsProvider')]
@@ -132,6 +142,21 @@ final class RequirementsTest extends TestCase
         $this->assertEquals(
             $result,
             (new Requirements)->requirementsNotSatisfiedFor(\PHPUnit\TestFixture\RequirementsTest::class, $test),
+        );
+    }
+
+    public function testGetMissingEnvironmentVariableRequirements(): void
+    {
+        $_ENV['FOO'] = 'foo';
+        $_ENV['BAR'] = '';
+
+        $this->assertEquals(
+            [
+                'Environment variable "FOO" is required to be "bar".',
+                'Environment variable "BAR" is required.',
+                'Environment variable "BAZ" is required.',
+            ],
+            (new Requirements)->requirementsNotSatisfiedFor(RequirementsEnvironmentVariableTest::class, 'testRequiresEnvironmentVariable'),
         );
     }
 }

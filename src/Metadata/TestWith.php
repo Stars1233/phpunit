@@ -27,7 +27,7 @@ final readonly class TestWith extends Metadata
     private ?string $name;
 
     /**
-     * @param 0|1                 $level
+     * @param int<0, 1>           $level
      * @param array<array<mixed>> $data
      * @param ?non-empty-string   $name
      */
@@ -39,7 +39,7 @@ final readonly class TestWith extends Metadata
         $this->name = $name;
     }
 
-    public function isTestWith(): bool
+    public function isTestWith(): true
     {
         return true;
     }

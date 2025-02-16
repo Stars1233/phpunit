@@ -27,6 +27,8 @@ use PHPUnit\TextUI\Output\Printer;
 use PHPUnit\Util\Color;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final readonly class ResultPrinter
@@ -56,11 +58,6 @@ final readonly class ResultPrinter
 
             $this->doPrint($tests, true);
         }
-    }
-
-    public function flush(): void
-    {
-        $this->printer->flush();
     }
 
     /**
@@ -309,7 +306,7 @@ final readonly class ResultPrinter
             PHP_EOL,
             array_map(
                 static fn (string $line) => '   ' . $prefix . ($line ? ' ' . $line : ''),
-                preg_split('/\r\n|\r|\n/', $message),
+                preg_split('/\r\n|\r|\n/', $message) ?: [],
             ),
         );
     }

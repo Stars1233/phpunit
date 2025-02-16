@@ -11,10 +11,11 @@ namespace PHPUnit\Framework;
 
 use function assert;
 use function defined;
-use function file_exists;
 use function file_get_contents;
 use function get_include_path;
 use function hrtime;
+use function is_array;
+use function is_file;
 use function restore_error_handler;
 use function serialize;
 use function set_error_handler;
@@ -37,12 +38,13 @@ use PHPUnit\Util\PHP\Job;
 use PHPUnit\Util\PHP\JobRunnerRegistry;
 use PHPUnit\Util\PHP\PhpProcessException;
 use ReflectionClass;
-use SebastianBergmann\CodeCoverage\StaticAnalysisCacheNotConfiguredException;
 use SebastianBergmann\Template\InvalidArgumentException;
 use SebastianBergmann\Template\Template;
 
 /**
- * @internal This interface is not covered by the backward compatibility promise for PHPUnit
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class SeparateProcessTestRunner implements IsolatedTestRunner
 {
@@ -53,7 +55,6 @@ final class SeparateProcessTestRunner implements IsolatedTestRunner
      * @throws InvalidArgumentException
      * @throws NoPreviousThrowableException
      * @throws ProcessIsolationException
-     * @throws StaticAnalysisCacheNotConfiguredException
      */
     public function run(TestCase $test, bool $runEntireClass, bool $preserveGlobalState): void
     {
@@ -86,8 +87,7 @@ final class SeparateProcessTestRunner implements IsolatedTestRunner
             $iniSettings   = GlobalState::getIniSettingsAsString();
         }
 
-        $coverage         = CodeCoverage::instance()->isActive() ? 'true' : 'false';
-        $linesToBeIgnored = var_export(CodeCoverage::instance()->linesToBeIgnored(), true);
+        $coverage = CodeCoverage::instance()->isActive() ? 'true' : 'false';
 
         if (defined('PHPUNIT_COMPOSER_INSTALL')) {
             $composerAutoload = var_export(PHPUNIT_COMPOSER_INSTALL, true);
@@ -115,14 +115,17 @@ final class SeparateProcessTestRunner implements IsolatedTestRunner
         $serializedConfiguration = $this->saveConfigurationForChildProcess();
         $processResultFile       = tempnam(sys_get_temp_dir(), 'phpunit_');
 
+        $file = $class->getFileName();
+
+        assert($file !== false);
+
         $var = [
             'bootstrap'                      => $bootstrap,
             'composerAutoload'               => $composerAutoload,
             'phar'                           => $phar,
-            'filename'                       => $class->getFileName(),
+            'filename'                       => $file,
             'className'                      => $class->getName(),
             'collectCodeCoverageInformation' => $coverage,
-            'linesToBeIgnored'               => $linesToBeIgnored,
             'data'                           => $data,
             'dataName'                       => $dataName,
             'dependencyInput'                => $dependencyInput,
@@ -132,8 +135,8 @@ final class SeparateProcessTestRunner implements IsolatedTestRunner
             'included_files'                 => $includedFiles,
             'iniSettings'                    => $iniSettings,
             'name'                           => $test->name(),
-            'offsetSeconds'                  => $offset[0],
-            'offsetNanoseconds'              => $offset[1],
+            'offsetSeconds'                  => (string) $offset[0],
+            'offsetNanoseconds'              => (string) $offset[1],
             'serializedConfiguration'        => $serializedConfiguration,
             'processResultFile'              => $processResultFile,
         ];
@@ -166,8 +169,10 @@ final class SeparateProcessTestRunner implements IsolatedTestRunner
 
         $processResult = '';
 
-        if (file_exists($processResultFile)) {
+        if (is_file($processResultFile)) {
             $processResult = file_get_contents($processResultFile);
+
+            assert($processResult !== false);
 
             @unlink($processResultFile);
         }
@@ -244,27 +249,25 @@ final class SeparateProcessTestRunner implements IsolatedTestRunner
         }
 
         if ($childResult !== false) {
-            if (!empty($childResult['output'])) {
-                $output = $childResult['output'];
+            if (!is_array($childResult)) {
+                $childResult = [$childResult];
             }
 
-            Facade::instance()->forward($childResult['events']);
-            PassedTests::instance()->import($childResult['passedTests']);
+            foreach ($childResult as $result) {
+                Facade::instance()->forward($result->events);
+                PassedTests::instance()->import($result->passedTests);
 
-            assert($test instanceof TestCase);
+                assert($test instanceof TestCase);
 
-            $test->setResult($childResult['testResult']);
-            $test->addToAssertionCount($childResult['numAssertions']);
+                $test->setResult($result->testResult);
+                $test->addToAssertionCount($result->numAssertions);
 
-            if (CodeCoverage::instance()->isActive() && $childResult['codeCoverage'] instanceof \SebastianBergmann\CodeCoverage\CodeCoverage) {
-                CodeCoverage::instance()->codeCoverage()->merge(
-                    $childResult['codeCoverage'],
-                );
+                if (CodeCoverage::instance()->isActive() && $result->codeCoverage instanceof \SebastianBergmann\CodeCoverage\CodeCoverage) {
+                    CodeCoverage::instance()->codeCoverage()->merge(
+                        $result->codeCoverage,
+                    );
+                }
             }
-        }
-
-        if (!empty($output)) {
-            print $output;
         }
     }
 

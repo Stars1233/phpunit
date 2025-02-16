@@ -8,7 +8,9 @@
   [32m-c|--configuration [36m<file>[0m         [0m Read configuration from XML file
   [32m--no-configuration                [0m Ignore default configuration file
                                      (phpunit.xml)
-  [32m--no-extensions                   [0m Do not load PHPUnit extensions
+  [32m--extension [36m<class>[0m               [0m Register test runner extension with
+                                     bootstrap <class>
+  [32m--no-extensions                   [0m Do not register test runner extensions
   [32m--include-path [36m<path(s)>[0m          [0m Prepend PHP's include_path with given
                                      path(s)
   [32m-d [36m<key[=value]>[0m                  [0m Sets a php.ini value
@@ -33,6 +35,8 @@
   [32m--exclude-group [36m<name>[0m            [0m Exclude tests from the specified group(s)
   [32m--covers [36m<name>[0m                   [0m Only run tests that intend to cover <name>
   [32m--uses [36m<name>[0m                     [0m Only run tests that intend to use <name>
+  [32m--requires-php-extension [36m<name>[0m   [0m Only run tests that require PHP extension
+                                     <name>
   [32m--list-test-files                 [0m List available test files
   [32m--list-tests                      [0m List available tests
   [32m--list-tests-xml [36m<file>[0m           [0m List available tests in XML format
@@ -80,6 +84,8 @@
                                      a test was considered risky
   [32m--fail-on-deprecation             [0m Signal failure using shell exit code when
                                      a deprecation was triggered
+  [32m--fail-on-phpunit-deprecation     [0m Signal failure using shell exit code when
+                                     a PHPUnit deprecation was triggered
   [32m--fail-on-notice                  [0m Signal failure using shell exit code when
                                      a notice was triggered
   [32m--fail-on-skipped                 [0m Signal failure using shell exit code when
@@ -113,6 +119,7 @@
   [32m--display-skipped                 [0m Display details for skipped tests
   [32m--display-deprecations            [0m Display details for deprecations triggered
                                      by tests
+  [32m--display-phpunit-deprecations    [0m Display details for PHPUnit deprecations
   [32m--display-errors                  [0m Display details for errors triggered by
                                      tests
   [32m--display-notices                 [0m Display details for notices triggered by

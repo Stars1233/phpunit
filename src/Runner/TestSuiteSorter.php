@@ -27,41 +27,23 @@ use PHPUnit\Runner\ResultCache\NullResultCache;
 use PHPUnit\Runner\ResultCache\ResultCache;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class TestSuiteSorter
 {
-    /**
-     * @var int
-     */
-    public const ORDER_DEFAULT = 0;
+    public const int ORDER_DEFAULT       = 0;
+    public const int ORDER_RANDOMIZED    = 1;
+    public const int ORDER_REVERSED      = 2;
+    public const int ORDER_DEFECTS_FIRST = 3;
+    public const int ORDER_DURATION      = 4;
+    public const int ORDER_SIZE          = 5;
 
     /**
-     * @var int
+     * @var non-empty-array<non-empty-string, positive-int>
      */
-    public const ORDER_RANDOMIZED = 1;
-
-    /**
-     * @var int
-     */
-    public const ORDER_REVERSED = 2;
-
-    /**
-     * @var int
-     */
-    public const ORDER_DEFECTS_FIRST = 3;
-
-    /**
-     * @var int
-     */
-    public const ORDER_DURATION = 4;
-
-    /**
-     * @var int
-     */
-    public const ORDER_SIZE = 5;
-
-    private const SIZE_SORT_WEIGHT = [
+    private const array SIZE_SORT_WEIGHT = [
         'small'   => 1,
         'medium'  => 2,
         'large'   => 3,
@@ -333,9 +315,9 @@ final class TestSuiteSorter
      * 3. If the test has dependencies but none left to do: mark done, start again from the top
      * 4. When we reach the end add any leftover tests to the end. These will be marked 'skipped' during execution.
      *
-     * @param array<DataProviderTestSuite|TestCase> $tests
+     * @param array<TestCase> $tests
      *
-     * @return array<DataProviderTestSuite|TestCase>
+     * @return array<TestCase>
      */
     private function resolveDependencies(array $tests): array
     {

@@ -27,7 +27,7 @@ final readonly class DataProvider extends Metadata
     private string $methodName;
 
     /**
-     * @param 0|1              $level
+     * @param int<0, 1>        $level
      * @param class-string     $className
      * @param non-empty-string $methodName
      */
@@ -39,7 +39,7 @@ final readonly class DataProvider extends Metadata
         $this->methodName = $methodName;
     }
 
-    public function isDataProvider(): bool
+    public function isDataProvider(): true
     {
         return true;
     }

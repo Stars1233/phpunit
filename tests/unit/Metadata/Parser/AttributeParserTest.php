@@ -19,6 +19,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\Attributes\Depends;
@@ -39,6 +40,7 @@ use PHPUnit\Framework\Attributes\Medium;
 use PHPUnit\Framework\Attributes\PostCondition;
 use PHPUnit\Framework\Attributes\PreCondition;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RequiresEnvironmentVariable;
 use PHPUnit\Framework\Attributes\RequiresFunction;
 use PHPUnit\Framework\Attributes\RequiresMethod;
 use PHPUnit\Framework\Attributes\RequiresOperatingSystem;
@@ -46,6 +48,7 @@ use PHPUnit\Framework\Attributes\RequiresOperatingSystemFamily;
 use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\Attributes\RequiresPhpunit;
+use PHPUnit\Framework\Attributes\RequiresPhpunitExtension;
 use PHPUnit\Framework\Attributes\RequiresSetting;
 use PHPUnit\Framework\Attributes\RunClassInSeparateProcess;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -59,8 +62,10 @@ use PHPUnit\Framework\Attributes\Ticket;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\UsesFunction;
 use PHPUnit\Framework\Attributes\UsesMethod;
+use PHPUnit\Framework\Attributes\UsesTrait;
 use PHPUnit\Framework\Attributes\WithoutErrorHandler;
 use PHPUnit\Metadata\DisableReturnValueGenerationForTestDoubles;
+use PHPUnit\Metadata\InvalidAttributeException;
 
 #[CoversClass(AttributeParser::class)]
 #[CoversClass(AfterClass::class)]
@@ -73,6 +78,7 @@ use PHPUnit\Metadata\DisableReturnValueGenerationForTestDoubles;
 #[CoversClass(CoversFunction::class)]
 #[CoversClass(CoversMethod::class)]
 #[CoversClass(CoversNothing::class)]
+#[CoversClass(CoversTrait::class)]
 #[CoversClass(DataProviderExternal::class)]
 #[CoversClass(DataProvider::class)]
 #[CoversClass(DependsExternal::class)]
@@ -89,6 +95,7 @@ use PHPUnit\Metadata\DisableReturnValueGenerationForTestDoubles;
 #[CoversClass(ExcludeGlobalVariableFromBackup::class)]
 #[CoversClass(ExcludeStaticPropertyFromBackup::class)]
 #[CoversClass(Group::class)]
+#[CoversClass(InvalidAttributeException::class)]
 #[CoversClass(Large::class)]
 #[CoversClass(Medium::class)]
 #[CoversClass(PostCondition::class)]
@@ -101,6 +108,8 @@ use PHPUnit\Metadata\DisableReturnValueGenerationForTestDoubles;
 #[CoversClass(RequiresPhpExtension::class)]
 #[CoversClass(RequiresPhp::class)]
 #[CoversClass(RequiresPhpunit::class)]
+#[CoversClass(RequiresPhpunitExtension::class)]
+#[CoversClass(RequiresEnvironmentVariable::class)]
 #[CoversClass(RequiresSetting::class)]
 #[CoversClass(RunClassInSeparateProcess::class)]
 #[CoversClass(RunInSeparateProcess::class)]
@@ -114,6 +123,7 @@ use PHPUnit\Metadata\DisableReturnValueGenerationForTestDoubles;
 #[CoversClass(UsesClass::class)]
 #[CoversClass(UsesFunction::class)]
 #[CoversClass(UsesMethod::class)]
+#[CoversClass(UsesTrait::class)]
 #[CoversClass(WithoutErrorHandler::class)]
 #[Small]
 #[Group('metadata')]

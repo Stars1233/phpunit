@@ -14,6 +14,7 @@ use const PHP_MINOR_VERSION;
 use function array_keys;
 use function array_reverse;
 use function array_shift;
+use function assert;
 use function defined;
 use function get_defined_constants;
 use function get_included_files;
@@ -32,14 +33,16 @@ use function var_export;
 use Closure;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final readonly class GlobalState
 {
     /**
-     * @var list<string>
+     * @var non-empty-list<non-empty-string>
      */
-    private const SUPER_GLOBAL_ARRAYS = [
+    private const array SUPER_GLOBAL_ARRAYS = [
         '_ENV',
         '_POST',
         '_GET',
@@ -50,9 +53,9 @@ final readonly class GlobalState
     ];
 
     /**
-     * @var array<string, array<string, true>>
+     * @var non-empty-array<non-empty-string, non-empty-array<non-empty-string, true>>
      */
-    private const DEPRECATED_INI_SETTINGS = [
+    private const array DEPRECATED_INI_SETTINGS = [
         '7.3' => [
             'iconv.input_encoding'       => true,
             'iconv.output_encoding'      => true,
@@ -184,7 +187,11 @@ final readonly class GlobalState
     {
         $result = '';
 
-        foreach (ini_get_all(null, false) as $key => $value) {
+        $iniSettings = ini_get_all(null, false);
+
+        assert($iniSettings !== false);
+
+        foreach ($iniSettings as $key => $value) {
             if (self::isIniSettingDeprecated($key)) {
                 continue;
             }

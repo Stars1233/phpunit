@@ -9,11 +9,15 @@
  */
 namespace PHPUnit\Framework;
 
+use function assert;
+use function class_exists;
 use function explode;
 use PHPUnit\Framework\TestSize\TestSize;
 use PHPUnit\Metadata\Api\Groups;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class DataProviderTestSuite extends TestSuite
@@ -72,6 +76,9 @@ final class DataProviderTestSuite extends TestSuite
     public function size(): TestSize
     {
         [$className, $methodName] = explode('::', $this->name());
+
+        assert(class_exists($className));
+        assert($methodName !== '');
 
         return (new Groups)->size($className, $methodName);
     }

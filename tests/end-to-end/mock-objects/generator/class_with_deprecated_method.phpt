@@ -18,24 +18,20 @@ require_once __DIR__ . '/../../../bootstrap.php';
 $generator = new \PHPUnit\Framework\MockObject\Generator\Generator;
 
 $mock = $generator->generate(
-  'ClassWithDeprecatedMethod',
-  true,
-  true,
-  [],
-  'MockFoo',
-  TRUE,
-  TRUE
+  type: 'ClassWithDeprecatedMethod',
+  mockObject: true,
+  methods: [],
+  mockClassName: 'MockFoo',
 );
 
 print $mock->classCode();
---EXPECTF--
+--EXPECT--
 declare(strict_types=1);
 
 class MockFoo extends ClassWithDeprecatedMethod implements PHPUnit\Framework\MockObject\MockObjectInternal
 {
-    use PHPUnit\Framework\MockObject\%SStubApi;
+    use PHPUnit\Framework\MockObject\StubApi;
     use PHPUnit\Framework\MockObject\MockObjectApi;
-    use PHPUnit\Framework\MockObject\GeneratedAsMockObject;
     use PHPUnit\Framework\MockObject\Method;
     use PHPUnit\Framework\MockObject\DoubledCloneMethod;
 
@@ -59,7 +55,7 @@ class MockFoo extends ClassWithDeprecatedMethod implements PHPUnit\Framework\Moc
         $__phpunit_arguments = [];
         $__phpunit_count     = func_num_args();
 
-        if ($__phpunit_count > 0) {
+        if (0 !== null && $__phpunit_count > 0) {
             $__phpunit_arguments_tmp = func_get_args();
 
             for ($__phpunit_i = 0; $__phpunit_i < $__phpunit_count; $__phpunit_i++) {
@@ -71,7 +67,7 @@ class MockFoo extends ClassWithDeprecatedMethod implements PHPUnit\Framework\Moc
 
         $__phpunit_result = $this->__phpunit_getInvocationHandler()->invoke(
             new \PHPUnit\Framework\MockObject\Invocation(
-                'ClassWithDeprecatedMethod', 'deprecatedMethod', $__phpunit_arguments, '', $this, true
+                'ClassWithDeprecatedMethod', 'deprecatedMethod', $__phpunit_arguments, '', $this
             )
         );
 

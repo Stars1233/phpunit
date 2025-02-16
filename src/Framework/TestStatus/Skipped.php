@@ -12,11 +12,13 @@ namespace PHPUnit\Framework\TestStatus;
 /**
  * @immutable
  *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final readonly class Skipped extends Known
 {
-    public function isSkipped(): bool
+    public function isSkipped(): true
     {
         return true;
     }

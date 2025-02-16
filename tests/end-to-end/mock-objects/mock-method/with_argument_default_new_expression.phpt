@@ -17,7 +17,7 @@ require_once __DIR__ . '/../../../bootstrap.php';
 
 $class = new ReflectionClass(Bar::class);
 
-$mockMethod = \PHPUnit\Framework\MockObject\Generator\MockMethod::fromReflection(
+$mockMethod = \PHPUnit\Framework\MockObject\Generator\DoubledMethod::fromReflection(
     $class->getMethod('method'),
     false,
     false
@@ -46,7 +46,7 @@ public function method(Foo $foo = new \Foo(1, 2, 3))
         $__phpunit_arguments = [$foo];
         $__phpunit_count     = func_num_args();
 
-        if ($__phpunit_count > 1) {
+        if (1 !== null && $__phpunit_count > 1) {
             $__phpunit_arguments_tmp = func_get_args();
 
             for ($__phpunit_i = 1; $__phpunit_i < $__phpunit_count; $__phpunit_i++) {
@@ -58,7 +58,7 @@ public function method(Foo $foo = new \Foo(1, 2, 3))
 
         $__phpunit_result = $this->__phpunit_getInvocationHandler()->invoke(
             new \PHPUnit\Framework\MockObject\Invocation(
-                'Bar', 'method', $__phpunit_arguments, '', $this, false
+                'Bar', 'method', $__phpunit_arguments, '', $this
             )
         );
 
