@@ -13,6 +13,8 @@ use const PHP_EOL;
 use const PHP_VERSION;
 use function assert;
 use function class_exists;
+use function defined;
+use function dirname;
 use function explode;
 use function function_exists;
 use function is_file;
@@ -22,6 +24,7 @@ use function printf;
 use function realpath;
 use function sprintf;
 use function str_contains;
+use function str_starts_with;
 use function trim;
 use function unlink;
 use PHPUnit\Event\EventFacadeIsSealedException;
@@ -100,6 +103,8 @@ final readonly class Application
      */
     public function run(array $argv): int
     {
+        $this->preload();
+
         try {
             EventFacade::emitter()->applicationStarted();
 
@@ -283,14 +288,15 @@ final readonly class Application
             }
 
             $shellExitCode = (new ShellExitCodeCalculator)->calculate(
-                $configuration->failOnDeprecation(),
-                $configuration->failOnPhpunitDeprecation(),
-                $configuration->failOnEmptyTestSuite(),
-                $configuration->failOnIncomplete(),
-                $configuration->failOnNotice(),
-                $configuration->failOnRisky(),
-                $configuration->failOnSkipped(),
-                $configuration->failOnWarning(),
+                $configuration->failOnDeprecation() || $configuration->failOnAllIssues(),
+                $configuration->failOnPhpunitDeprecation() || $configuration->failOnAllIssues(),
+                $configuration->failOnPhpunitNotice() || $configuration->failOnAllIssues(),
+                $configuration->failOnEmptyTestSuite() || $configuration->failOnAllIssues(),
+                $configuration->failOnIncomplete() || $configuration->failOnAllIssues(),
+                $configuration->failOnNotice() || $configuration->failOnAllIssues(),
+                $configuration->failOnRisky() || $configuration->failOnAllIssues(),
+                $configuration->failOnSkipped() || $configuration->failOnAllIssues(),
+                $configuration->failOnWarning() || $configuration->failOnAllIssues(),
                 $result,
             );
 
@@ -549,7 +555,7 @@ final readonly class Application
         $runtime = 'PHP ' . PHP_VERSION;
 
         if (CodeCoverage::instance()->isActive()) {
-            $runtime .= ' with ' . CodeCoverage::instance()->driver()->nameAndVersion();
+            $runtime .= ' with ' . CodeCoverage::instance()->driverNameAndVersion();
         }
 
         $this->writeMessage($printer, 'Runtime', $runtime);
@@ -603,10 +609,6 @@ final readonly class Application
         }
     }
 
-    /**
-     * @throws EventFacadeIsSealedException
-     * @throws UnknownSubscriberTypeException
-     */
     private function registerLogfileWriters(Configuration $configuration): void
     {
         if ($configuration->hasLogEventsText()) {
@@ -672,10 +674,6 @@ final readonly class Application
         }
     }
 
-    /**
-     * @throws EventFacadeIsSealedException
-     * @throws UnknownSubscriberTypeException
-     */
     private function testDoxResultCollector(Configuration $configuration): ?TestDoxResultCollector
     {
         if ($configuration->hasLogfileTestdoxHtml() ||
@@ -690,10 +688,6 @@ final readonly class Application
         return null;
     }
 
-    /**
-     * @throws EventFacadeIsSealedException
-     * @throws UnknownSubscriberTypeException
-     */
     private function initializeTestResultCache(Configuration $configuration): ResultCache
     {
         if ($configuration->cacheResult()) {
@@ -707,10 +701,6 @@ final readonly class Application
         return new NullResultCache;
     }
 
-    /**
-     * @throws EventFacadeIsSealedException
-     * @throws UnknownSubscriberTypeException
-     */
     private function configureBaseline(Configuration $configuration): ?BaselineGenerator
     {
         if ($configuration->hasGenerateBaseline()) {
@@ -855,5 +845,31 @@ final readonly class Application
         }
 
         ErrorHandler::instance()->useDeprecationTriggers($deprecationTriggers);
+    }
+
+    private function preload(): void
+    {
+        if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
+            return;
+        }
+
+        $classMapFile = dirname(PHPUNIT_COMPOSER_INSTALL) . '/composer/autoload_classmap.php';
+
+        if (!is_file($classMapFile)) {
+            return;
+        }
+
+        foreach (require $classMapFile as $codeUnitName => $sourceCodeFile) {
+            if (!str_starts_with($codeUnitName, 'PHPUnit\\') &&
+                !str_starts_with($codeUnitName, 'SebastianBergmann\\')) {
+                continue;
+            }
+
+            if (str_contains($sourceCodeFile, '/tests/')) {
+                continue;
+            }
+
+            require_once $sourceCodeFile;
+        }
     }
 }
