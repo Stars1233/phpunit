@@ -333,12 +333,28 @@ final class DispatchingEmitter implements Emitter
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
      */
-    public function testPreparationFailed(Code\Test $test): void
+    public function testPreparationErrored(Code\Test $test, Throwable $throwable): void
+    {
+        $this->dispatcher->dispatch(
+            new Test\PreparationErrored(
+                $this->telemetryInfo(),
+                $test,
+                $throwable,
+            ),
+        );
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     * @throws UnknownEventTypeException
+     */
+    public function testPreparationFailed(Code\Test $test, Throwable $throwable): void
     {
         $this->dispatcher->dispatch(
             new Test\PreparationFailed(
                 $this->telemetryInfo(),
                 $test,
+                $throwable,
             ),
         );
     }
