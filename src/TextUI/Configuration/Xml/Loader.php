@@ -61,6 +61,7 @@ use PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Clover;
 use PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Cobertura;
 use PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Crap4j;
 use PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Html as CodeCoverageHtml;
+use PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\OpenClover;
 use PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Php as CodeCoveragePhp;
 use PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Text as CodeCoverageText;
 use PHPUnit\TextUI\XmlConfiguration\CodeCoverage\Report\Xml as CodeCoverageXml;
@@ -451,6 +452,20 @@ final readonly class Loader
             );
         }
 
+        $openClover = null;
+        $element    = $this->element($xpath, 'coverage/report/openclover');
+
+        if ($element !== null) {
+            $openClover = new OpenClover(
+                new File(
+                    $this->toAbsolutePath(
+                        $filename,
+                        (string) $this->parseStringAttribute($element, 'outputFile'),
+                    ),
+                ),
+            );
+        }
+
         $php     = null;
         $element = $this->element($xpath, 'coverage/report/php');
 
@@ -504,6 +519,7 @@ final readonly class Loader
             $cobertura,
             $crap4j,
             $html,
+            $openClover,
             $php,
             $text,
             $xml,
@@ -873,6 +889,7 @@ final readonly class Loader
             $this->parseColumns($document),
             $this->parseColors($document),
             $this->parseBooleanAttribute($document->documentElement, 'stderr', false),
+            $this->parseBooleanAttribute($document->documentElement, 'displayDetailsOnAllIssues', false),
             $this->parseBooleanAttribute($document->documentElement, 'displayDetailsOnIncompleteTests', false),
             $this->parseBooleanAttribute($document->documentElement, 'displayDetailsOnSkippedTests', false),
             $this->parseBooleanAttribute($document->documentElement, 'displayDetailsOnTestsThatTriggerDeprecations', false),
@@ -885,6 +902,7 @@ final readonly class Loader
             $requireCoverageMetadata,
             $bootstrap,
             $this->parseBooleanAttribute($document->documentElement, 'processIsolation', false),
+            $this->parseBooleanAttribute($document->documentElement, 'failOnAllIssues', false),
             $this->parseBooleanAttribute($document->documentElement, 'failOnDeprecation', false),
             $this->parseBooleanAttribute($document->documentElement, 'failOnPhpunitDeprecation', false),
             $this->parseBooleanAttribute($document->documentElement, 'failOnPhpunitNotice', false),

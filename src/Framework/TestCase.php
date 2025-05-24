@@ -180,6 +180,10 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
      */
     private array $mockObjects = [];
     private TestStatus $status;
+
+    /**
+     * @var 0|positive-int
+     */
     private int $numberOfAssertionsPerformed = 0;
     private mixed $testResult                = null;
     private string $output                   = '';
@@ -524,6 +528,7 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
 
                 $emitter->testPreparationFailed(
                     $this->valueObjectForEvents(),
+                    Event\Code\ThrowableBuilder::from($e),
                 );
             }
 
@@ -550,9 +555,17 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
                 $this->status = TestStatus::error($e->getMessage());
 
                 if (!$this->wasPrepared) {
-                    $emitter->testPreparationFailed(
-                        $this->valueObjectForEvents(),
-                    );
+                    if ($e instanceof AssertionFailedError) {
+                        $emitter->testPreparationFailed(
+                            $this->valueObjectForEvents(),
+                            Event\Code\ThrowableBuilder::from($e),
+                        );
+                    } else {
+                        $emitter->testPreparationErrored(
+                            $this->valueObjectForEvents(),
+                            Event\Code\ThrowableBuilder::from($e),
+                        );
+                    }
                 }
 
                 $emitter->testErrored(
@@ -634,7 +647,7 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
 
         clearstatcache();
 
-        if ($currentWorkingDirectory !== getcwd()) {
+        if ($currentWorkingDirectory !== false && $currentWorkingDirectory !== getcwd()) {
             chdir($currentWorkingDirectory);
         }
 
@@ -801,6 +814,8 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
 
     /**
      * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     *
+     * @return 0|positive-int
      */
     final public function numberOfAssertionsPerformed(): int
     {
@@ -1227,6 +1242,17 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
         return $partialMock;
     }
 
+    /**
+     * @param non-empty-string $additionalInformation
+     */
+    final protected function provideAdditionalInformation(string $additionalInformation): void
+    {
+        Event\Facade::emitter()->testProvidedAdditionalInformation(
+            $this->valueObjectForEvents(),
+            $additionalInformation,
+        );
+    }
+
     protected function transformException(Throwable $t): Throwable
     {
         return $t;
@@ -1264,15 +1290,19 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
             if ($this->expectErrorLog) {
                 $this->assertNotEmpty($errorLogOutput, 'Test did not call error_log().');
             } else {
-                // strip date from logged error, see https://github.com/php/php-src/blob/c696087e323263e941774ebbf902ac249774ec9f/main/main.c#L905
-                print preg_replace('/\[.+\] /', '', $errorLogOutput);
+                if ($errorLogOutput !== false) {
+                    // strip date from logged error, see https://github.com/php/php-src/blob/c696087e323263e941774ebbf902ac249774ec9f/main/main.c#L905
+                    print preg_replace('/\[.+\] /', '', $errorLogOutput);
+                }
             }
         } catch (Throwable $exception) {
             if (!$this->expectErrorLog) {
                 $errorLogOutput = stream_get_contents($capture);
 
-                // strip date from logged error, see https://github.com/php/php-src/blob/c696087e323263e941774ebbf902ac249774ec9f/main/main.c#L905
-                print preg_replace('/\[.+\] /', '', $errorLogOutput);
+                if ($errorLogOutput !== false) {
+                    // strip date from logged error, see https://github.com/php/php-src/blob/c696087e323263e941774ebbf902ac249774ec9f/main/main.c#L905
+                    print preg_replace('/\[.+\] /', '', $errorLogOutput);
+                }
             }
 
             if (!$this->shouldExceptionExpectationsBeVerified($exception)) {

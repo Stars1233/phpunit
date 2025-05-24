@@ -75,7 +75,9 @@ interface Emitter
 
     public function testPreparationStarted(Code\Test $test): void;
 
-    public function testPreparationFailed(Code\Test $test): void;
+    public function testPreparationErrored(Code\Test $test, Throwable $throwable): void;
+
+    public function testPreparationFailed(Code\Test $test, Throwable $throwable): void;
 
     /**
      * @param class-string $testClassName
@@ -237,6 +239,11 @@ interface Emitter
      * @param non-empty-string $output
      */
     public function testPrintedUnexpectedOutput(string $output): void;
+
+    /**
+     * @param non-empty-string $additionalInformation
+     */
+    public function testProvidedAdditionalInformation(TestMethod $test, string $additionalInformation): void;
 
     /**
      * @param non-negative-int $numberOfAssertionsPerformed

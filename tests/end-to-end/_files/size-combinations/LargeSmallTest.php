@@ -7,19 +7,16 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace PHPUnit\TestFixture\SizeGroups;
+namespace PHPUnit\TestFixture\SizeCombinations;
 
-use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Large;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
-#[Group('small')]
-#[Group('medium')]
-#[Group('large')]
-final class SizeGroupsTest extends TestCase
+#[Large]
+#[Small]
+final class LargeSmallTest extends TestCase
 {
-    #[Group('small')]
-    #[Group('medium')]
-    #[Group('large')]
     public function testOne(): void
     {
         $this->assertTrue(true);

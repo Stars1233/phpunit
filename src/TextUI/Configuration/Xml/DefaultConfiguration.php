@@ -73,6 +73,7 @@ final readonly class DefaultConfiguration extends Configuration
                 null,
                 null,
                 null,
+                null,
             ),
             new Groups(
                 GroupCollection::fromArray([]),
@@ -113,7 +114,9 @@ final readonly class DefaultConfiguration extends Configuration
                 false,
                 false,
                 false,
+                false,
                 null,
+                false,
                 false,
                 false,
                 false,

@@ -21,6 +21,14 @@ use PHPUnit\Runner\TestSuiteSorter;
 #[TestDox('CLI Options Parser')]
 final class BuilderTest extends TestCase
 {
+    #[TestDox('argument')]
+    public function testArguments(): void
+    {
+        $configuration = (new Builder)->fromParameters(['command', 'argument']);
+
+        $this->assertSame(['argument'], $configuration->arguments());
+    }
+
     #[TestDox('--colors')]
     public function testColorsImplicitAuto(): void
     {
@@ -288,6 +296,26 @@ final class BuilderTest extends TestCase
         $this->expectException(Exception::class);
 
         $configuration->coverageHtml();
+    }
+
+    #[TestDox('--coverage-openclover file')]
+    public function testCoverageOpenClover(): void
+    {
+        $configuration = (new Builder)->fromParameters(['--coverage-openclover', 'file']);
+
+        $this->assertTrue($configuration->hasCoverageOpenClover());
+        $this->assertSame('file', $configuration->coverageOpenClover());
+    }
+
+    public function testCoverageOpenCloverMayNotBeConfigured(): void
+    {
+        $configuration = (new Builder)->fromParameters([]);
+
+        $this->assertFalse($configuration->hasCoverageOpenClover());
+
+        $this->expectException(Exception::class);
+
+        $configuration->coverageOpenClover();
     }
 
     #[TestDox('--coverage-php file')]
@@ -1235,6 +1263,26 @@ final class BuilderTest extends TestCase
         $configuration->stderr();
     }
 
+    #[TestDox('--fail-on-all-issues')]
+    public function testFailOnAllIssues(): void
+    {
+        $configuration = (new Builder)->fromParameters(['--fail-on-all-issues']);
+
+        $this->assertTrue($configuration->hasFailOnAllIssues());
+        $this->assertTrue($configuration->failOnAllIssues());
+    }
+
+    public function testFailOnAllIssuesMayNotBeConfigured(): void
+    {
+        $configuration = (new Builder)->fromParameters([]);
+
+        $this->assertFalse($configuration->hasFailOnAllIssues());
+
+        $this->expectException(Exception::class);
+
+        $configuration->failOnAllIssues();
+    }
+
     #[TestDox('--fail-on-deprecation')]
     public function testFailOnDeprecation(): void
     {
@@ -1442,6 +1490,10 @@ final class BuilderTest extends TestCase
 
         $this->assertTrue($configuration->hasStopOnDeprecation());
         $this->assertTrue($configuration->stopOnDeprecation());
+
+        $this->expectException(Exception::class);
+
+        $configuration->specificDeprecationToStopOn();
     }
 
     #[TestDox('--stop-on-deprecation=message')]
@@ -1644,6 +1696,26 @@ final class BuilderTest extends TestCase
         $this->expectException(Exception::class);
 
         $configuration->testdoxPrinter();
+    }
+
+    #[TestDox('--testdox-summary')]
+    public function testTestDoxPrinterSummary(): void
+    {
+        $configuration = (new Builder)->fromParameters(['--testdox-summary']);
+
+        $this->assertTrue($configuration->hasTestDoxPrinterSummary());
+        $this->assertTrue($configuration->testdoxPrinterSummary());
+    }
+
+    public function testTestDoxPrinterSummaryMayNotBeConfigured(): void
+    {
+        $configuration = (new Builder)->fromParameters([]);
+
+        $this->assertFalse($configuration->hasTestDoxPrinterSummary());
+
+        $this->expectException(Exception::class);
+
+        $configuration->testdoxPrinterSummary();
     }
 
     #[TestDox('--testdox-html file')]
@@ -1982,6 +2054,26 @@ final class BuilderTest extends TestCase
         $configuration->disallowTestOutput();
     }
 
+    #[TestDox('--display-all-issues')]
+    public function testDisplayAllIssues(): void
+    {
+        $configuration = (new Builder)->fromParameters(['--display-all-issues']);
+
+        $this->assertTrue($configuration->hasDisplayDetailsOnAllIssues());
+        $this->assertTrue($configuration->displayDetailsOnAllIssues());
+    }
+
+    public function testDisplayAllIssuesMayNotBeConfigured(): void
+    {
+        $configuration = (new Builder)->fromParameters([]);
+
+        $this->assertFalse($configuration->hasDisplayDetailsOnAllIssues());
+
+        $this->expectException(Exception::class);
+
+        $configuration->displayDetailsOnAllIssues();
+    }
+
     #[TestDox('--display-incomplete')]
     public function testDisplayIncomplete(): void
     {
@@ -2309,6 +2401,26 @@ final class BuilderTest extends TestCase
         $configuration = (new Builder)->fromParameters(['--with-telemetry']);
 
         $this->assertTrue($configuration->withTelemetry());
+    }
+
+    #[TestDox('--extension')]
+    public function testExtension(): void
+    {
+        $configuration = (new Builder)->fromParameters(['--extension', 'ExtensionClass']);
+
+        $this->assertTrue($configuration->hasExtensions());
+        $this->assertSame(['ExtensionClass'], $configuration->extensions());
+    }
+
+    public function testExtensionMayNotBeConfigured(): void
+    {
+        $configuration = (new Builder)->fromParameters([]);
+
+        $this->assertFalse($configuration->hasExtensions());
+
+        $this->expectException(Exception::class);
+
+        $configuration->extensions();
     }
 
     public function testInvalidOption(): void

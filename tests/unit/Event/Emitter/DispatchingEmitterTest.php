@@ -836,6 +836,44 @@ final class DispatchingEmitterTest extends Framework\TestCase
         $this->assertSame($test, $event->test());
     }
 
+    #[TestDox('testPreparationErrored() emits Test\PreparationErrored event')]
+    public function testTestPreparationErroredEmitsTestPreparationErroredEvent(): void
+    {
+        $subscriber = new class extends RecordingSubscriber implements Test\PreparationErroredSubscriber
+        {
+            public function notify(Test\PreparationErrored $event): void
+            {
+                $this->record($event);
+            }
+        };
+
+        $dispatcher = $this->dispatcherWithRegisteredSubscriber(
+            Test\PreparationErroredSubscriber::class,
+            Test\PreparationErrored::class,
+            $subscriber,
+        );
+
+        $telemetrySystem = $this->telemetrySystem();
+
+        $emitter = new DispatchingEmitter(
+            $dispatcher,
+            $telemetrySystem,
+        );
+
+        $test      = $this->testValueObject();
+        $throwable = ThrowableBuilder::from(new Exception('message'));
+
+        $emitter->testPreparationErrored($test, $throwable);
+
+        $this->assertSame(1, $subscriber->recordedEventCount());
+
+        $event = $subscriber->lastRecordedEvent();
+
+        $this->assertInstanceOf(Test\PreparationErrored::class, $event);
+        $this->assertSame($test, $event->test());
+        $this->assertSame($throwable, $event->throwable());
+    }
+
     #[TestDox('testPreparationFailed() emits Test\PreparationFailed event')]
     public function testTestPreparationFailedEmitsTestPreparationFailedEvent(): void
     {
@@ -860,9 +898,10 @@ final class DispatchingEmitterTest extends Framework\TestCase
             $telemetrySystem,
         );
 
-        $test = $this->testValueObject();
+        $test      = $this->testValueObject();
+        $throwable = ThrowableBuilder::from(new Exception('message'));
 
-        $emitter->testPreparationFailed($test);
+        $emitter->testPreparationFailed($test, $throwable);
 
         $this->assertSame(1, $subscriber->recordedEventCount());
 
@@ -870,6 +909,7 @@ final class DispatchingEmitterTest extends Framework\TestCase
 
         $this->assertInstanceOf(Test\PreparationFailed::class, $event);
         $this->assertSame($test, $event->test());
+        $this->assertSame($throwable, $event->throwable());
     }
 
     #[TestDox('beforeFirstTestMethodCalled() emits Test\BeforeFirstTestMethodCalled event')]
@@ -2489,6 +2529,47 @@ final class DispatchingEmitterTest extends Framework\TestCase
 
         $this->assertInstanceOf(Test\PrintedUnexpectedOutput::class, $event);
         $this->assertSame($output, $event->output());
+    }
+
+    #[TestDox('testProvidedAdditionalInformation() emits Test\AdditionalInformationProvided event')]
+    public function testTestProvidedAdditionalInformationEmitsAdditionalInformationProvidedEvent(): void
+    {
+        $subscriber = new class extends RecordingSubscriber implements Test\AdditionalInformationProvidedSubscriber
+        {
+            public function notify(Test\AdditionalInformationProvided $event): void
+            {
+                $this->record($event);
+            }
+        };
+
+        $dispatcher = $this->dispatcherWithRegisteredSubscriber(
+            Test\AdditionalInformationProvidedSubscriber::class,
+            Test\AdditionalInformationProvided::class,
+            $subscriber,
+        );
+
+        $telemetrySystem = $this->telemetrySystem();
+        $test            = $this->testValueObject();
+
+        $emitter = new DispatchingEmitter(
+            $dispatcher,
+            $telemetrySystem,
+        );
+
+        $additionalInformation = 'addtional information';
+
+        $emitter->testProvidedAdditionalInformation(
+            $test,
+            $additionalInformation,
+        );
+
+        $this->assertSame(1, $subscriber->recordedEventCount());
+
+        $event = $subscriber->lastRecordedEvent();
+
+        $this->assertInstanceOf(Test\AdditionalInformationProvided::class, $event);
+        $this->assertSame($test, $event->test());
+        $this->assertSame($additionalInformation, $event->additionalInformation());
     }
 
     #[TestDox('testFinished() emits Test\Finished event')]
